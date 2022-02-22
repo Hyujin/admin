@@ -1,0 +1,31 @@
+body{
+    background-color: white;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1vw;
+}
+
+
+#main-container{
+    position: absolute;
+    left: 20%;
+    top: 1%;
+
+}
+
+.container{
+    margin: 0 !important;
+    padding: 0 !important; 
+    -webkit-overflow-scrolling: none;
+    
+}
+
+.bg-pink{
+    position: sticky !important;
+    background-image: linear-gradient(to bottom right, rgba(204, 45, 204, 0.876),rgb(228, 140, 220)) !important;
+}
+
+.col, .col-2{
+    font-size: 75%;
+    text-align: center;
+}
