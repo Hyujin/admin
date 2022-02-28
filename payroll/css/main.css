@@ -29,3 +29,15 @@ body{
     font-size: 75%;
     text-align: center;
 }
+
+th{
+    font-size: 0.6vw;
+}
+
+td{
+    font-size: 0.7vw;
+}
+
+input{
+    background-color: transparent;
+}

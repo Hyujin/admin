@@ -11,17 +11,17 @@ function cleanString($string) {
 if(isset($_POST['importSubmit'])){
 
     //Prepare and bind statements
-    $pay_stmt = $db->prepare("INSERT INTO pay (emp_id, basic_hrs, nds_pay, allow_pay, dispute, spl_pay, reg_pay, prem_pay, ot_pay) VALUES (?,?,?,?,?,?,?,?,?) ");
-    $pay_stmt->bind_param("idddddddd", $emp_id, $basic_hrs, $nds, $allow, $dispute, $spl_hol, $reg_hol, $prem_hol, $ot);
+    $sales_pay_stmt = $db->prepare("INSERT INTO sales_pay (emp_id, sales_pay, training_pay, allow_pay, dispute, spl_pay, reg_hol_pay, premium_pay, ot_pay, gross_pay, net_pay) VALUES (?,?,?,?,?,?,?,?,?,?,?) ");
+    $sales_pay_stmt->bind_param("idddddddddd",$emp_id, $sales, $training, $allow, $dispute, $spl_hol, $reg_hol, $prem_hol, $ot, $gross, $net);
 
     $deductions_stmt = $db->prepare("INSERT INTO deductions(emp_id, sss, phic, pagibig, others, ca, total_deductions) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $deductions_stmt->bind_param("idddddd", $emp_id, $sss, $phic, $pagibig, $others, $ca, $total_deductions);
 
-    $sales_compensation_stmt = $db->prepare("INSERT INTO sales_compensation(emp_id, total_sales, training_days, reg_hol_days, total_num_days, spl_hrs, prem_hrs) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $sales_compensation_stmt->bind_param("idddddd", $emp_id, $total_sales, $training_days, $reg_hol_days, $total_num_days, $spl_hrs, $prem_hrs);
+    $sales_manhour_stmt = $db->prepare("INSERT INTO sales_manhour(emp_id, total_sales, training_days, reg_hol_hrs, total_num_days, spl_hrs, prem_hrs) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $sales_manhour_stmt->bind_param("idddddd", $emp_id, $total_sales, $training_days, $reg_hol_hrs, $total_num_days, $spl_hrs, $prem_hrs);
     
-    $sales_manhour_stmt = $db->prepare("INSERT INTO sales_manhour(emp_id, training_rate, sales_rate, allow_rate) VALUES (?, ?, ?, ?)");
-    $sales_manhour_stmt->bind_param("iddd", $emp_id, $training_rate, $sales_rate, $allow_rate);
+    $sales_rate_stmt = $db->prepare("INSERT INTO sales_rate(emp_id, training_rate, sales_rate, allow_rate, nd_rate) VALUES (?, ?, ?, ?, ?)");
+    $sales_rate_stmt->bind_param("idddd", $emp_id, $training_rate, $sales_rate, $allow_rate, $nd_rate);
     
     
     // Allowed mime types
@@ -50,11 +50,11 @@ if(isset($_POST['importSubmit'])){
                 $nd_rate                    = $line[5];                    
                 $total_sales                = $line[6];
                 $training_days              = $line[7];
-                $reg_hol_days               = $line[8];
+                $reg_hol_hrs                = $line[8];
                 $total_num_days             = $line[9];
                 $spl_hrs                    = $line[10];
                 $prem_hrs                   = $line[11]; 
-                $sales_pay                  = $line[12];   //pay
+                $sales                      = $line[12];   //pay
                 $training                   = $line[13];   //pay
                 $allow                      = $line[14];   //pay
                 $dispute                    = $line[15];   //pay
@@ -62,19 +62,19 @@ if(isset($_POST['importSubmit'])){
                 $reg_hol                    = $line[17];   //pay
                 $prem_hol                   = $line[18];   //pay
                 $ot                         = $line[19];   //pay
-                $gross                      = $line[20];  //pay
+                $gross                      = $line[20];   //pay
                 $sss                        = $line[21];
                 $phic                       = $line[22];
                 $pagibig                    = $line[23];
                 $others                     = $line[24];
                 $ca                         = $line[25];
                 $total_deductions           = $line[26];
-                $net_pay                    = $line[27];
+                $net                        = $line[27];
 
 
-                    // $queryNameExists = $db->query("SELECT id FROM employees WHERE full_name = '" .$fullname. "' ");
+                    // $queryNameExists = $db->query("SELECT id FROM employees WHERE fullname = '" .$fullname. "' ");
                     // var_dump($queryNameExists);
-                    $nameExistResult = $db->query("SELECT id FROM employees WHERE full_name = '" .$fullname. "' ");
+                    $nameExistResult = $db->query("SELECT id FROM employees WHERE fullname = '" .$fullname. "' ");
                     if ($nameExistResult->num_rows > 0) {
                         // output data of each row
                         while($row = $nameExistResult->fetch_assoc()) {
@@ -83,24 +83,24 @@ if(isset($_POST['importSubmit'])){
                         echo "Existing Employee ID:  "; 
                         echo $emp_id; 
                     
-                        $pay_stmt->execute();
+                        $sales_pay_stmt->execute();
                         $deductions_stmt->execute();
-                        $sales_compensation_stmt->execute();
+                        $sales_rate_stmt->execute();
                         $sales_manhour_stmt->execute();
                     }
                        else {
-                        $insertNewNameQuery = "INSERT INTO employees (full_name, role, type) VALUES ('$fullname', '$role', 'comm') ";
+                        $insertNewNameQuery = "INSERT INTO employees (fullname, role, emp_type) VALUES ('$fullname', '$role', 'Commission') ";
                         echo ($insertNewNameQuery);
                         if (mysqli_query($db, $insertNewNameQuery)) {
                             echo "New name inserted successfully";
-                            $querySelectName = $db->query("SELECT id FROM employees WHERE full_name = '$fullname'  ");
+                            $querySelectName = $db->query("SELECT id FROM employees WHERE fullname = '$fullname'  ");
                             if ($querySelectName->num_rows > 0) {
                                 // output data of each row
                                 while($row = $querySelectName->fetch_assoc()) {
-                                    $emp_id = '"  .$row[id]. "';
-                                    $pay_stmt->execute();
+                                    $emp_id = "  $row[id] ";
+                                    $sales_pay_stmt->execute();
                                     $deductions_stmt->execute();
-                                    $sales_compensation_stmt->execute();
+                                    $sales_rate_stmt->execute();
                                     $sales_manhour_stmt->execute();
                                 }
                               }

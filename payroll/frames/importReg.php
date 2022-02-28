@@ -1,5 +1,37 @@
 <?php
-include("../controllers/getImports.php");
+include("../controllers/db_conn.php");
+
+ $limit = 12;
+// Get status message
+if(!empty($_GET['status'])){
+    switch($_GET['status']){
+        case 'empty':
+            $statusType = 'alert-danger';
+            $statusMsg = 'Please select atleast one filter parameter in search.';
+            break;
+
+        default:
+            $statusType = '';
+            $statusMsg = '';
+
+        }
+    }
+
+    if (isset($_GET['pageno'])) {
+        $pageno = $_GET['pageno'];
+    } else {
+        $pageno = 1;
+    }
+    
+    $no_of_records_per_page = 18;
+    $offset = ($pageno-1) * $no_of_records_per_page;
+    
+    $total_pages_sql = "SELECT COUNT(*) FROM employees";
+    $result = mysqli_query($db,$total_pages_sql);
+    $total_rows = mysqli_fetch_array($result)[0];
+    $total_pages = ceil($total_rows / $no_of_records_per_page);
+    
+     
 ?>
 <html>
 <head>
@@ -18,22 +50,23 @@ include("../controllers/getImports.php");
     <div class="container">
        
        <div class="row">
-           <div class="col-8 py-2 mb-3">
-           <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item active" aria-current="page">Regular Employees</li>
-            </ol>
-            </nav>
-           </div>
-           <div class="col-4 py-2 mb-3">
-               <input type="text" class="text" id="search" placeholder=" Search...">
-               <button type="submit" class="btn btn-sm btn-primary"> <i class="fs-5 bi-search"></i></button>
-          
-                <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Import Payroll CSV">
-                    <a href="javascript:void(0);" class="btn btn-success btn-sm import-toggle" onclick="formToggle('importFrm');" ><i class="fs-5 bi-cloud-arrow-up"></i></a>
-                </span>  
+            <div class="col-8 py-2 mb-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">Regular Employees</li>
+                </ol>
+                </nav>
             </div>
+            <div class="col-4 py-2 mb-3">
+                <input type="text" class="text" id="search" placeholder=" Search...">
+                <button type="submit" class="btn btn-sm btn-primary"> <i class="fs-5 bi-search"></i></button>
+            
+                    <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Import Payroll CSV">
+                        <a href="javascript:void(0);" class="btn btn-success btn-sm import-toggle" onclick="formToggle('importFrm');" ><i class="fs-5 bi-cloud-arrow-up"></i></a>
+                    </span>  
+                </div>
        </div>
+
        <div class="row">
         <div class="col-6"></div>
         <div class="col-6 import-toggle" id="importFrm" style="display: none;">
@@ -48,7 +81,7 @@ include("../controllers/getImports.php");
         </div>
        </div>
         <div class="row">
-            <table class="table table-responsive table-striped table-light">
+            <table class="table table-responsive table-striped table-light ms-5">
                 <thead class="table-primary">
                     <th class="col">
                         <input type="checkbox" class="radio ms-3" id="allMarked">
@@ -60,62 +93,59 @@ include("../controllers/getImports.php");
                     <th class="col">Gross Pay</th>
                     <th class="col">Deductions</th>
                     <th class="col">Net Pay</th>
-                    <th class="col">Print Status</th>
-                    <th class="col-2">Tool</th>
+                    <th class="col">Status</th>
+                    <th class="col-2">Tool</th> 
                 </thead>
                 <tbody>
-                    <tr class="table-hover align-bottom">
-                        <td class="col">
-                            <input type="checkbox" class="radio ms-3">
-                        </td>
-                        <td class="col">Chelly Ombiga</td>
-                        <td class="col">HR</td>
-                        <td class="col">148</td>
-                        <td class="col">89</td>
-                        <td class="col">13, 172</td>
-                        <td class="col">0</td>
-                        <td class="col">13, 172</td>
-                        <td class="col">Printed</td>
-                        <td class="col-2">
-                            <button class="pr-1 btn btn-sm btn-primary"><i class="fs bi-pencil-square"></i></button>
-                            <button class="pr-1 btn btn-sm btn-success"><i class="fs bi-printer"></i></button>
-                        </td>
-                    </tr>
-                    <tr class="table-hover align-bottom">
-                        <td class="col">
-                            <input type="checkbox" class="radio ms-3">
-                        </td>
-                        <td class="col">Yujin Yeongssil</td>
-                        <td class="col">IT Support</td>
-                        <td class="col">129</td>
-                        <td class="col">80</td>
-                        <td class="col">10, 320</td>
-                        <td class="col">0</td>
-                        <td class="col">10, 320</td>
-                        <td class="col">Not Printed</td>
-                        <td class="col-2">
-                            <button class="pr-1 btn btn-sm btn-primary"><i class="fs bi-pencil-square"></i></button>
-                            <button class="pr-1 btn btn-sm btn-success"><i class="fs bi-printer"></i></button>
-                        </td>
-                    </tr>
+                <?php        
+                        $sql = "SELECT employees.fullname, employees.role, reg_pay.basic_hrs_pay, reg_pay.nds_pay, reg_pay.allow_pay, reg_pay.dispute, reg_pay.spl_hol_pay, reg_pay.reg_hol_pay, reg_pay.prem_hol_pay, reg_pay.ot_pay, reg_pay.gross_pay, reg_pay.net_pay, reg_pay.visibility
+                        FROM reg_pay
+                        INNER JOIN employees ON reg_pay.emp_id = employees.id ORDER BY fullname ASC LIMIT $offset, $no_of_records_per_page ";
+                        $result = $db->query($sql);
+                        if ($result->num_rows > 0) {
+                            // output data of each row
+                            while($row = $result->fetch_assoc()) {
+                                 echo "<tr class='text-center align-middle'>";
+                                 echo "<form action='edit.php' method='post'>";
+                                 echo "<td scope='col'> <input class='ms-3' type='radio'> </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='16' name='id' class='hidden text-center' disabled value=\"" .$row['fullname']. "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='8' name='fullname' class='hidden text-center' disabled value=\"" . $row["role"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' id='order_id' size='14' name='order_id' disabled class='hidden text-center' value=\"" . $row["basic_hrs_pay"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='10' name='cx_phone' class='hidden text-center' disabled value=".$row['nds_pay']." > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='5' name='disposition' class='hidden text-center' disabled value=\"" . $row["allow_pay"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden' disabled value=\"" .$row['dispute']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['net_pay']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['visibility']. "\"></td>";
+                                 echo "<td scope='col'> 
+                                 <button class='pr-1 btn btn-sm btn-primary'><i class='fs bi-pencil-square'></i></button>
+                                 <button class='pr-1 btn btn-sm btn-success'><i class='fs bi-printer'></i></button>
+                                 </td>";
+                                 echo "</form>";
+                                 echo "</tr>";
+                                }
+                          } 
+                          else {
+                            echo "0 results";
+                          }
+
+                          $db->close();
+
+                          ?>
                 </tbody>
             </table>
         </div>
-        <div class="row">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-end">
-                  <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1">Previous</a>
-                  </li>
-                  <li class="page-item"><a class="page-link" href="#">1</a></li>
-                  <li class="page-item"><a class="page-link" href="#">2</a></li>
-                  <li class="page-item"><a class="page-link" href="#">3</a></li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">Next</a>
-                  </li>
-                </ul>
-              </nav>
-        </div>
+        <nav class="container position-relative mb-5">
+                                <ul class="pagination position-absolute top-50 start-50 translate-middle mt-4">
+                                    <li><a href="?pageno=1" class="btn btn-sm btn-dark ms-3 me-3">First</a></li>
+                                    <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>" class="btn btn-sm btn-dark ms-3 me-3">
+                                        <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>" class="btn btn-sm btn-dark ms-3 me-3">Prev</a>
+                                    </li>
+                                    <li class="<?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
+                                        <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>" class="btn btn-sm btn-dark ms-3 me-3">Next </a>
+                                    </li>
+                                    <li><a href="?pageno=<?php echo $total_pages; ?>" class="btn btn-sm btn-dark ms-3 me-3">Last</a></li>
+                                </ul>
+                        </nav>
 
     </div>
 
