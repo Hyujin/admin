@@ -88,19 +88,24 @@ if(!empty($_GET['status'])){
                     </th>
                     <th class="col">Name</th>
                     <th class="col">Role</th>
-                    <th class="col">Hourly Rate</th>
-                    <th class="col">Man hour</th>
+                    <th class="col">Manhour</th>
+                    <th class="col">Total Deductions</th>
+                    <th class="col">OT Pay</th>
                     <th class="col">Gross Pay</th>
-                    <th class="col">Deductions</th>
                     <th class="col">Net Pay</th>
+                    <th class="col">Date</th>
                     <th class="col">Status</th>
                     <th class="col-2">Tool</th> 
                 </thead>
                 <tbody>
                 <?php        
-                        $sql = "SELECT employees.fullname, employees.role, reg_pay.basic_hrs_pay, reg_pay.nds_pay, reg_pay.allow_pay, reg_pay.dispute, reg_pay.spl_hol_pay, reg_pay.reg_hol_pay, reg_pay.prem_hol_pay, reg_pay.ot_pay, reg_pay.gross_pay, reg_pay.net_pay, reg_pay.visibility
+                        $sql = "SELECT employees.fullname, employees.role, reg_manhour.total_worked_hrs, deductions.total_deductions, reg_pay.ot_pay, reg_pay.gross_pay, reg_pay.net_pay, reg_pay.timestamps, reg_pay.visibility
                         FROM reg_pay
-                        INNER JOIN employees ON reg_pay.emp_id = employees.id ORDER BY fullname ASC LIMIT $offset, $no_of_records_per_page ";
+                        INNER JOIN employees ON reg_pay.emp_id = employees.id
+                        INNER JOIN reg_manhour ON reg_pay.emp_id = reg_manhour.emp_id
+                        INNER JOIN deductions ON reg_pay.emp_id = deductions.emp_id
+                        ORDER BY fullname ASC LIMIT $offset, $no_of_records_per_page ";
+
                         $result = $db->query($sql);
                         if ($result->num_rows > 0) {
                             // output data of each row
@@ -110,11 +115,12 @@ if(!empty($_GET['status'])){
                                  echo "<td scope='col'> <input class='ms-3' type='radio'> </td>";
                                  echo "<td scope='col'> <input style='border: 0;' type='text' size='16' name='id' class='hidden text-center' disabled value=\"" .$row['fullname']. "\" > </td>";
                                  echo "<td scope='col'> <input style='border: 0;' type='text' size='8' name='fullname' class='hidden text-center' disabled value=\"" . $row["role"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' id='order_id' size='14' name='order_id' disabled class='hidden text-center' value=\"" . $row["basic_hrs_pay"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='10' name='cx_phone' class='hidden text-center' disabled value=".$row['nds_pay']." > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='5' name='disposition' class='hidden text-center' disabled value=\"" . $row["allow_pay"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden' disabled value=\"" .$row['dispute']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' id='order_id' size='14' name='order_id' disabled class='hidden text-center' value=\"" . $row["total_worked_hrs"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='10' name='cx_phone' class='hidden text-center' disabled value=".$row['total_deductions']." > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='5' name='disposition' class='hidden text-center' disabled value=\"" . $row["ot_pay"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled  value=\"" .$row['gross_pay']. "\"></td>";
                                  echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['net_pay']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['timestamps']. "\"></td>";
                                  echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['visibility']. "\"></td>";
                                  echo "<td scope='col'> 
                                  <button class='pr-1 btn btn-sm btn-primary'><i class='fs bi-pencil-square'></i></button>

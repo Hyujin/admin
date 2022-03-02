@@ -22,7 +22,7 @@ if(isset($_POST['importSubmit'])){
     $reg_rate_stmt = $db->prepare("INSERT INTO reg_rate(emp_id, daily_rate, hrly_rate, allow_hr_rate, nd_rate) VALUES (?, ?, ?, ?, ?)");
     $reg_rate_stmt->bind_param("idddd", $emp_id, $daily_rate, $hrly_rate, $allow_hrly_rate, $nd_rate);
 
-    $update_reg_rate_stmt = $db->prepare("UPDATE reg_rate SET emp_id = ?, daily_rate = ?, hr_rate = ?, allow_hr_rate = ?, nd_rate = ? ");
+    $update_reg_rate_stmt = $db->prepare("UPDATE reg_rate SET emp_id = ?, daily_rate = ?, hrly_rate = ?, allow_hr_rate = ?, nd_rate = ? ");
     $update_reg_rate_stmt->bind_param("idddd", $emp_id, $daily_rate, $hrly_rate, $allow_hrly_rate, $nd_rate);
     
     $reg_manhour_stmt = $db->prepare("INSERT INTO reg_manhour(emp_id, total_worked_hrs, total_nd_hrs, reg_hol_hrs, ot_hrs, spl_hol_hrs, prem_hrs) VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -67,7 +67,7 @@ if(isset($_POST['importSubmit'])){
                 $reg_hol                    = $line[17];   //reg_pay
                 $prem_hol                   = $line[18];   //reg_pay
                 $ot                         = $line[19];   //reg_pay
-                $gross                      = $line[20];  //reg_pay
+                $gross                      = $line[20];   //reg_pay
                 $sss                        = $line[21];
                 $phic                       = $line[22];
                 $pagibig                    = $line[23];
@@ -87,7 +87,6 @@ if(isset($_POST['importSubmit'])){
                         }
                         echo "Existing employees ID:  "; 
                         echo $emp_id; 
-                        var_dump($reg_pay_stmt);
                        
                         $reg_pay_stmt->execute();
                         $deductions_stmt->execute();
@@ -96,7 +95,6 @@ if(isset($_POST['importSubmit'])){
                     }
                        else {
                         $insertNewNameQuery = "INSERT INTO employees (fullname, role, emp_type) VALUES ('$fullname', '$role', '$emp_type') ";
-                        echo ($insertNewNameQuery);
                         if (mysqli_query($db, $insertNewNameQuery)) {
                             echo "New name inserted successfully";
                             $querySelectName = $db->query("SELECT id FROM employees WHERE fullname = '$fullname' ");
@@ -123,13 +121,14 @@ if(isset($_POST['importSubmit'])){
             fclose($csvFile);
             
             $qstring = '?status=succ';
+            
         }else{
             $qstring = '?status=err';
         }
     }else{
         $qstring = '?status=invalid_file';
     }
+    // Redirect to the listing page
+    header("Location: ../view/importReg.php.$qstring");
 }
 
-// Redirect to the listing page
-//header("Location: ../view/import-disabled.php".$string);
