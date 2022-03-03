@@ -22,7 +22,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="home.php">Home</a>
+                <a class="nav-link" aria-current="page" href="dashboard.php">Dashboard</a>
                 </li>
                 <li class="nav-item">
                 <a class="nav-link active" href="import.php">Import</a>
@@ -49,7 +49,7 @@
             switch($_GET['status']){
                 case 'empty':
                     $statusType = 'alert-danger';
-                    $statusMsg = 'Please select atleast one filter parameter in search.';
+                    $statusMsg = 'Please select at least one filter parameter in search.';
                     break;
 
                 default:
@@ -78,34 +78,23 @@
             <div class="col-8 py-2 mb-3">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" aria-current="page">Regular Employees</li>
+                    <li class="breadcrumb-item active" aria-current="page">Daily Rate Employees</li>
                 </ol>
                 </nav>
             </div>
             <div class="col-4 py-2 mb-3">
                 <input type="text" class="text" id="search" placeholder=" Search...">
-                <button type="submit" class="btn btn-sm btn-primary"> <i class="fs-5 bi-search"></i></button>
-            
-                    <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Import Payroll CSV">
-                        <a href="javascript:void(0);" class="btn btn-success btn-sm import-toggle" onclick="formToggle('importFrm');" ><i class="fs-5 bi-cloud-arrow-up"></i></a>
-                    </span>  
+                <button type="submit" class="btn btn-sm btn-primary"> <i class="fs-7 bi-search"></i></button>
+                      <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-sm btn-success ms-1" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                    <i class="fs-7 bi-cloud-arrow-up"></i>
+                    </button>
+                        <button class="btn btn-sm btn-success ms-4" data-bs-toggle="modal" data-bs-target="#modalPublish">Publish</button> 
                 </div>
        </div>
+        
 
-       <div class="row">
-        <div class="col-6"></div>
-        <div class="col-6 import-toggle" id="importFrm" style="display: none;">
-            <div class="input-group input-group-sm position-relative">
-                <form action="../controllers/emp_Import.php" method="post" enctype="multipart/form-data">
-                    <div class="form-control" style="border: 0;">
-                        <input class="form-control form-control-sm" id="formFileSm"  type="file" name="file" />
-                        <input type="submit" class="btn btn-primary btn-sm position-absolute top-50 end-0 translate-middle-y" name="importSubmit" value="IMPORT">
-                    </div>
-                </form>
-            </div>  
-        </div>
-       </div>
-    </div>
+
     <div class="container-fluid">
         <div class="table table-sm">
         <table class="table table-sm table-responsive table-hover table-light mt-3">
@@ -115,6 +104,7 @@
                     </th>
                     <th class="col text-start"><small>Name</small></th>
                     <th class="col text-center"><small>Role</small></th>
+                    <th class="col text-center"><small>Type</small></th>
                     <th class="col text-center"><small>Manhour</small></th>
                     <th class="col text-center"><small>Total Deductions</small></th>
                     <th class="col text-center"><small>OT Pay</small></th>
@@ -126,11 +116,13 @@
                 </thead>
                 <tbody>
                 <?php        
-                $sql = "SELECT employees.fullname, employees.role, reg_manhour.total_worked_hrs, deductions.total_deductions, reg_pay.ot_pay, reg_pay.gross_pay, reg_pay.net_pay, reg_pay.timestamps, reg_pay.visibility
+                $sql = "SELECT  employees.id, employees.fullname, employees.role, employees.emp_type, reg_manhour.total_worked_hrs, deductions.total_deductions,
+                                reg_pay.ot_pay, reg_pay.gross_pay, reg_pay.net_pay, reg_pay.pay_sched, reg_pay.visibility, reg_pay.pay_sched
                         FROM reg_pay
                         INNER JOIN employees ON reg_pay.emp_id = employees.id
                         INNER JOIN reg_manhour ON reg_pay.emp_id = reg_manhour.emp_id
                         INNER JOIN deductions ON reg_pay.emp_id = deductions.emp_id
+                        WHERE reg_pay.visibility = 0
                         GROUP BY employees.id
                         ORDER BY fullname ASC LIMIT $offset, $no_of_records_per_page ";
 
@@ -141,15 +133,16 @@
                                  echo "<tr class='text-center align-middle'>";
                                  echo "<form action='edit.php' method='post'>";
                                  echo "<td scope='col'> <input class='ms-3' type='radio'> </td>";
-                                 echo "<td scope='col'> <small> <input style='border: 0;' type='text' size='16' name='id' class='hidden text-start' disabled value=\"" .$row['fullname']. "\" > </small></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='8' name='fullname' class='hidden text-center' disabled value=\"" . $row["role"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' id='order_id' size='14' name='order_id' disabled class='hidden text-center' value=\"" . $row["total_worked_hrs"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='10' name='cx_phone' class='hidden text-center' disabled value=".$row['total_deductions']." > </td>";
+                                 echo "<td scope='col'> <small> <input style='border: 0;' type='text' size='35' name='id' class='hidden text-start' disabled value=\"" .$row['fullname']. "\" > </small></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='role' class='hidden text-center' disabled value=\"" . $row["role"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='8' name='type' class='hidden text-center' disabled value=\"" . $row["emp_type"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' id='order_id' size='4' name='order_id' disabled class='hidden text-center' value=\"" . $row["total_worked_hrs"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='8' name='cx_phone' class='hidden text-center' disabled value=".$row['total_deductions']." > </td>";
                                  echo "<td scope='col'> <input style='border: 0;' type='text' size='5' name='disposition' class='hidden text-center' disabled value=\"" . $row["ot_pay"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled  value=\"" .$row['gross_pay']. "\"></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['net_pay']. "\"></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['timestamps']. "\"></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['visibility']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='5' name='amount' class='hidden text-center' disabled  value=\"" .$row['gross_pay']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='5' name='amount' class='hidden text-center' disabled value=\"" .$row['net_pay']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='7' name='amount' class='hidden text-center' disabled value=\"" .$row['pay_sched']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='2' name='amount' class='hidden text-center' disabled value=\"" .$row['visibility']. "\"></td>";
                                  echo "<td scope='col'> 
                                  <button class='pr-1 btn btn-sm btn-primary'><i class='fs bi-pencil-square'></i></button>
                                  <button class='pr-1 btn btn-sm btn-success'><i class='fs bi-printer'></i></button>
@@ -182,6 +175,71 @@
                     <li><a href="?pageno=<?php echo $total_pages; ?>" class="btn btn-sm btn-dark ms-3 me-3">Last</a></li>
                 </ul>
         </nav>
+
+                <!-- Modal -->
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Choose Import</h5>
+                
+            </div>
+            <div class="modal-body">
+            <label>Daily rate Employees</label>
+            <div class="input-group input-group-sm position-relative mt-3 mb-5">
+                <form action="../controllers/emp_Import.php" method="post" enctype="multipart/form-data">
+                    <div class="form-control" style="border: 0;">
+                        <input class="form-control form-control-sm" id="formFileSm"  type="file" name="file" />
+                        <label>Set Payroll Date: </label>
+                        <input class="date mt-3" type="date" name="reg_sched" id="reg_schedule" required>
+                        <input type="submit" class="btn btn-primary btn-sm position-absolute top-100 end-0 translate-middle-y" name="importSubmit" value="IMPORT">
+                    </div>
+                </form>
+            </div>
+            <hr>
+            <label>Sales Based Employees</label>
+            <div class="input-group input-group-sm mt-3 mb-3">
+                <form action="../controllers/comm_Import.php" method="post" enctype="multipart/form-data">
+                    <div class="form-control" style="border: 0;">
+                        <input class="form-control form-control-sm" id="formFileSm"  type="file" name="file" required />
+                        <label>Set Payroll Date: </label>
+                        <input class="date mt-3" type="date" name="sales_sched" id="sales_schedule" required>
+                        <input type="submit" class="btn btn-primary btn-sm position-absolute top-100 end-0 translate-middle-y" name="importSubmit" value="IMPORT">
+                    </div>
+                </form>
+            </div> 
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+        </div>
+
+        
+                <!-- Modal -->
+                <div class="modal fade" id="modalPublish" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Confirm Publishing Payslip Records?</h5> 
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <p class="text-secondary"><small>Once published. The records will be visible to all employees.</small></p>
+            </div>
+            <div class="modal-footer">
+            <form action="../controllers/publish.php" method="post">
+                   <button class="btn btn-sm btn-success">Publish</button>
+                   <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+               </form>
+            </div>
+            </div>
+        </div>
+        </div>
+
+
+
 
 </body>
 </html>
