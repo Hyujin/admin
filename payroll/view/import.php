@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style src='../css/main.css'></style>
-        <script src='../js/main.js'></script>
+
+        <link rel="stylesheet" href="../css/login.css">
+        <link rel="stylesheet" href="../css/main.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
@@ -67,6 +68,8 @@
 
             $no_of_records_per_page = 15;
             $offset = ($pageno-1) * $no_of_records_per_page;
+            $sort = "fullname";
+            $visibility = "Hidden";
             
             $total_pages_sql = "SELECT COUNT(*) FROM employees";
             $result = mysqli_query($db,$total_pages_sql);
@@ -124,30 +127,36 @@
                         INNER JOIN deductions ON reg_pay.emp_id = deductions.emp_id
                         WHERE reg_pay.visibility = 0
                         GROUP BY employees.id
-                        ORDER BY fullname ASC LIMIT $offset, $no_of_records_per_page ";
+                        ORDER BY $sort ASC LIMIT $offset, $no_of_records_per_page ";
 
                         $result = $db->query($sql);
                         if ($result->num_rows > 0) {
                             // output data of each row
                             while($row = $result->fetch_assoc()) {
+                                if($row['visibility'] == 1){
+                                    $row['visibility'] = "Published";
+                                }
+                            else{
+                                $row['visibility'] = "Hidden";
+                                }
+                            
                                  echo "<tr class='text-center align-middle'>";
                                  echo "<form action='edit.php' method='post'>";
                                  echo "<td scope='col'> <input class='ms-3' type='radio'> </td>";
                                  echo "<td scope='col'> <small> <input style='border: 0;' type='text' size='35' name='id' class='hidden text-start' disabled value=\"" .$row['fullname']. "\" > </small></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='role' class='hidden text-center' disabled value=\"" . $row["role"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='8' name='type' class='hidden text-center' disabled value=\"" . $row["emp_type"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' id='order_id' size='4' name='order_id' disabled class='hidden text-center' value=\"" . $row["total_worked_hrs"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='8' name='cx_phone' class='hidden text-center' disabled value=".$row['total_deductions']." > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='5' name='disposition' class='hidden text-center' disabled value=\"" . $row["ot_pay"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='5' name='amount' class='hidden text-center' disabled  value=\"" .$row['gross_pay']. "\"></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='5' name='amount' class='hidden text-center' disabled value=\"" .$row['net_pay']. "\"></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='7' name='amount' class='hidden text-center' disabled value=\"" .$row['pay_sched']. "\"></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='2' name='amount' class='hidden text-center' disabled value=\"" .$row['visibility']. "\"></td>";
-                                 echo "<td scope='col'> 
-                                 <button class='pr-1 btn btn-sm btn-primary'><i class='fs bi-pencil-square'></i></button>
-                                 <button class='pr-1 btn btn-sm btn-success'><i class='fs bi-printer'></i></button>
-                                 </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='role' class='hidden text-center'  value=\"" . $row["role"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='8' name='type' class='hidden text-center'  value=\"" . $row["emp_type"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='number' id='order_id' size='4' name='order_id'  class='hidden text-center' value=\"" . $row["total_worked_hrs"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='number' size='6' name='cx_phone' class='hidden text-center'  value=".$row['total_deductions']." > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='number' size='5' name='disposition' class='hidden text-center'  value=\"" . $row["ot_pay"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='number' size='5' name='amount' class='hidden text-center'   value=\"" .$row['gross_pay']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='number' size='5' name='amount' class='hidden text-center'  value=\"" .$row['net_pay']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['pay_sched']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='3' name='amount' class='hidden text-center' disabled value=\"" .$row['visibility']. "\"></td>";
                                  echo "</form>";
+                                 echo "<td scope='col'> 
+                                 <button class='pr-1 btn btn-sm btn-primary' data-bs-toggle='modal' data-bs-target='#modalEdit' ><i class='bi bi-save'></i></button>
+                                 </td>";    
                                  echo "</tr>";
                                 }
                           } 
@@ -163,8 +172,10 @@
    
         </div>
         <p class="text-center">Page <?php echo"$pageno" ?> of <?php echo"$total_pages" ?></p>
-        <nav class="container position-relative mb-5">
-                <ul class="pagination position-absolute top-50 start-50 translate-middle mt-4">
+        
+        <nav class="container mb-5 d-flex justify-content-center">
+
+                <ul class="pagination  mt-4">
                     <li><a href="?pageno=1" class="btn btn-sm btn-dark ms-3 me-3">First</a></li>
                     <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>" class="btn btn-sm btn-dark ms-3 me-3">
                         <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>" class="btn btn-sm btn-dark ms-3 me-3">Prev</a>
@@ -217,12 +228,12 @@
         </div>
 
         
-                <!-- Modal -->
-                <div class="modal fade" id="modalPublish" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <!-- Modal Publish-->
+        <div class="modal fade" id="modalPublish" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Confirm Publishing Payslip Records?</h5> 
+                <h5 class="modal-title">Confirm Publishing Payslip Records?</h5> 
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -238,7 +249,27 @@
         </div>
         </div>
 
-
+                
+                <!-- Modal Edit-->
+                <div class="modal fade" id="modalEdit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Edit Record</h5> 
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <?php echo"<td scope='col'> <small> <input style='border: 0;' type='text' size='35' name='id' class='hidden text-start' disabled value=\"" .$row['fullname']. "\" > </small></td>"?>
+            </div>
+            <div class="modal-footer">
+            <form action="../controllers/publish.php" method="post">
+                   <button class="btn btn-sm btn-success">Save changes</button>
+                   <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+               </form>
+            </div>
+            </div>
+        </div>
+        </div>
 
 
 </body>

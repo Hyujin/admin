@@ -73,45 +73,16 @@
             <table class="table table-sm table-responsive table-light">
                 <thead class="table-primary">
                     <th class="col">Schedule</th>
+                    <th class="col">Total Manhour</th>
                     <th class="col">Total Pay</th>
-                    <th class="col">Printed Payslip</th>
-                    <th class="col">Printed Paycheck</th>
+                    <th class="col">Published Paycheck</th>
+                    <th class="col">Tools</th>
                 </thead>
                 <tbody>
-                    <tr class="table-hover align-bottom">
-                        <td class="col">2021-11-15</td>
-                        <td class="col">230, 320</td>
-                        <td class="col">87</td>
-                        <td class="col">23</td>
-                        
-                    </tr>
-                    <tr class="table-hover align-bottom">
-
-                        <td class="col">2021-12-01</td>
-                        <td class="col">232, 600</td>
-                        <td class="col">87</td>
-                        <td class="col">20</td>
-                       
-                    </tr>
+                    <!-- TABLE BODY HERE -->
                 </tbody>
             </table>
         </div>
-        <div class="row">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-end">
-                  <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1">Previous</a>
-                  </li>
-                  <li class="page-item"><a class="page-link" href="#">1</a></li>
-                  <li class="page-item"><a class="page-link" href="#">2</a></li>
-                  <li class="page-item"><a class="page-link" href="#">3</a></li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">Next</a>
-                  </li>
-                </ul>
-              </nav>
-        </div>
-
     </div>
 
 </body>

@@ -26,8 +26,8 @@ if(isset($_POST['importSubmit'])){
     $update_reg_rate_stmt = $db->prepare("UPDATE reg_rate SET emp_id = ?, daily_rate = ?, hrly_rate = ?, allow_hr_rate = ?, nd_rate = ? ");
     $update_reg_rate_stmt->bind_param("idddd", $emp_id, $daily_rate, $hrly_rate, $allow_hrly_rate, $nd_rate);
     
-    $reg_manhour_stmt = $db->prepare("INSERT INTO reg_manhour(emp_id, total_worked_hrs, total_nd_hrs, reg_hol_hrs, ot_hrs, spl_hol_hrs, prem_hrs) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $reg_manhour_stmt->bind_param("idddddd", $emp_id, $total_worked_hrs, $total_nd_hrs, $reg_hol_hrs, $ot_hrs, $spl_hol_hrs, $prem_hrs);
+    $reg_manhour_stmt = $db->prepare("INSERT INTO reg_manhour(emp_id, total_worked_hrs, total_nd_hrs, reg_hol_hrs, ot_hrs, spl_hol_hrs, prem_hrs, pay_sched) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $reg_manhour_stmt->bind_param("idddddds", $emp_id, $total_worked_hrs, $total_nd_hrs, $reg_hol_hrs, $ot_hrs, $spl_hol_hrs, $prem_hrs, $pay_sched);
     
     
     // Allowed mime types
