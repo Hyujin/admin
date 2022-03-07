@@ -3,6 +3,7 @@
 include_once 'db_conn.php';
 
 $emp_type = "Regular";
+$pay_sched = $_POST['reg_sched'];
 
 function cleanString($string) {
     $string = str_replace(' ', '', $string); // Replaces all spaces with hyphens.
@@ -13,8 +14,8 @@ function cleanString($string) {
 if(isset($_POST['importSubmit'])){
 
     //Prepare and bind statements
-    $reg_pay_stmt = $db->prepare("INSERT INTO reg_pay (emp_id, basic_hrs_pay, nds_pay, allow_pay, dispute, spl_hol_pay, reg_hol_pay, prem_hol_pay, ot_pay) VALUES (?,?,?,?,?,?,?,?,?) ");
-    $reg_pay_stmt->bind_param("idddddddd", $emp_id, $basic_hrs, $nds_pay, $allow, $dispute, $spl_hol, $reg_hol, $prem_hol, $ot);
+    $reg_pay_stmt = $db->prepare("INSERT INTO reg_pay (emp_id, basic_hrs_pay, nds_pay, allow_pay, dispute, spl_hol_pay, reg_hol_pay, prem_hol_pay, ot_pay, net_pay, gross_pay, pay_sched) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ");
+    $reg_pay_stmt->bind_param("idddddddddds", $emp_id, $basic_hrs, $nds_pay, $allow, $dispute, $spl_hol, $reg_hol, $prem_hol, $ot, $net_pay, $gross, $pay_sched);
 
     $deductions_stmt = $db->prepare("INSERT INTO deductions(emp_id, sss, phic, pagibig, others, ca, total_deductions) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $deductions_stmt->bind_param("idddddd", $emp_id, $sss, $phic, $pagibig, $others, $ca, $total_deductions);
@@ -25,8 +26,8 @@ if(isset($_POST['importSubmit'])){
     $update_reg_rate_stmt = $db->prepare("UPDATE reg_rate SET emp_id = ?, daily_rate = ?, hrly_rate = ?, allow_hr_rate = ?, nd_rate = ? ");
     $update_reg_rate_stmt->bind_param("idddd", $emp_id, $daily_rate, $hrly_rate, $allow_hrly_rate, $nd_rate);
     
-    $reg_manhour_stmt = $db->prepare("INSERT INTO reg_manhour(emp_id, total_worked_hrs, total_nd_hrs, reg_hol_hrs, ot_hrs, spl_hol_hrs, prem_hrs) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $reg_manhour_stmt->bind_param("idddddd", $emp_id, $total_worked_hrs, $total_nd_hrs, $reg_hol_hrs, $ot_hrs, $spl_hol_hrs, $prem_hrs);
+    $reg_manhour_stmt = $db->prepare("INSERT INTO reg_manhour(emp_id, total_worked_hrs, total_nd_hrs, reg_hol_hrs, ot_hrs, spl_hol_hrs, prem_hrs, pay_sched) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $reg_manhour_stmt->bind_param("idddddds", $emp_id, $total_worked_hrs, $total_nd_hrs, $reg_hol_hrs, $ot_hrs, $spl_hol_hrs, $prem_hrs, $pay_sched);
     
     
     // Allowed mime types
@@ -129,6 +130,6 @@ if(isset($_POST['importSubmit'])){
         $qstring = '?status=invalid_file';
     }
     // Redirect to the listing page
-    header("Location: ../view/importReg.php.$qstring");
+    header("Location: ../view/import.php.$qstring");
 }
 

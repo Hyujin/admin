@@ -89,7 +89,7 @@ if(isset($_POST['importSubmit'])){
                         $sales_manhour_stmt->execute();
                     }
                        else {
-                        $insertNewNameQuery = "INSERT INTO employees (fullname, role, emp_type) VALUES ('$fullname', '$role', 'Commission') ";
+                        $insertNewNameQuery = "INSERT INTO employees (fullname, role, emp_type) VALUES ('$fullname', '$role', 'Sales') ";
                         echo ($insertNewNameQuery);
                         if (mysqli_query($db, $insertNewNameQuery)) {
                             echo "New name inserted successfully";
@@ -122,5 +122,5 @@ if(isset($_POST['importSubmit'])){
     }
 }
 
-// Redirect to the listing page
-//header("Location: ../view/import-disabled.php".$string);
+ //Redirect to the listing page
+header("Location: ../view/import.php".$string);

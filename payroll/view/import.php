@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style src='../css/main.css'></style>
-        <script src='../js/main.js'></script>
+
+        <link rel="stylesheet" href="../css/login.css">
+        <link rel="stylesheet" href="../css/main.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-        
-    <title>Import</title>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <title>Import</title>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -22,7 +24,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="home.php">Home</a>
+                <a class="nav-link" aria-current="page" href="dashboard.php">Dashboard</a>
                 </li>
                 <li class="nav-item">
                 <a class="nav-link active" href="import.php">Import</a>
@@ -49,7 +51,7 @@
             switch($_GET['status']){
                 case 'empty':
                     $statusType = 'alert-danger';
-                    $statusMsg = 'Please select atleast one filter parameter in search.';
+                    $statusMsg = 'Please select at least one filter parameter in search.';
                     break;
 
                 default:
@@ -67,6 +69,8 @@
 
             $no_of_records_per_page = 15;
             $offset = ($pageno-1) * $no_of_records_per_page;
+            $sort = "fullname";
+            $visibility = "Hidden";
             
             $total_pages_sql = "SELECT COUNT(*) FROM employees";
             $result = mysqli_query($db,$total_pages_sql);
@@ -74,47 +78,35 @@
             $total_pages = ceil($total_rows / $no_of_records_per_page);   
     ?>
     <div class="container-fluid ms-3">
-    <div class="row">
-            <div class="col-8 py-2 mb-3">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" aria-current="page">Regular Employees</li>
-                </ol>
-                </nav>
-            </div>
-            <div class="col-4 py-2 mb-3">
-                <input type="text" class="text" id="search" placeholder=" Search...">
-                <button type="submit" class="btn btn-sm btn-primary"> <i class="fs-5 bi-search"></i></button>
-            
-                    <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Import Payroll CSV">
-                        <a href="javascript:void(0);" class="btn btn-success btn-sm import-toggle" onclick="formToggle('importFrm');" ><i class="fs-5 bi-cloud-arrow-up"></i></a>
-                    </span>  
+        <div class="row">
+                <div class="col-8 py-2 mb-3">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page">Daily Rate Employees</li>
+                    </ol>
+                    </nav>
                 </div>
-       </div>
-
-       <div class="row">
-        <div class="col-6"></div>
-        <div class="col-6 import-toggle" id="importFrm" style="display: none;">
-            <div class="input-group input-group-sm position-relative">
-                <form action="../controllers/emp_Import.php" method="post" enctype="multipart/form-data">
-                    <div class="form-control" style="border: 0;">
-                        <input class="form-control form-control-sm" id="formFileSm"  type="file" name="file" />
-                        <input type="submit" class="btn btn-primary btn-sm position-absolute top-50 end-0 translate-middle-y" name="importSubmit" value="IMPORT">
+                <div class="col-4 py-2 mb-3">
+                    <input type="text" class="text" id="search" placeholder=" Search...">
+                    <button type="submit" class="btn btn-sm btn-primary"> <i class="fs-7 bi-search"></i></button>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-sm btn-success ms-1" data-bs-toggle="modal" data-bs-target="#importModal"><i class="fs-7 bi-cloud-arrow-up"></i></button>
+                        <button class="btn btn-sm btn-success ms-4" data-bs-toggle="modal" data-bs-target="#modalPublish">Publish</button> 
                     </div>
-                </form>
-            </div>  
         </div>
-       </div>
-    </div>
+    </div>    
+
+
     <div class="container-fluid">
         <div class="table table-sm">
-        <table class="table table-sm table-responsive table-hover table-light mt-3">
+        <table class="table table-sm table-responsive table-striped table-hover table-light mt-3">
                 <thead class="table-primary">
                     <th class="col">
                         <input type="checkbox" class="radio ms-3" id="allMarked">
                     </th>
                     <th class="col text-start"><small>Name</small></th>
                     <th class="col text-center"><small>Role</small></th>
+                    <th class="col text-center"><small>Type</small></th>
                     <th class="col text-center"><small>Manhour</small></th>
                     <th class="col text-center"><small>Total Deductions</small></th>
                     <th class="col text-center"><small>OT Pay</small></th>
@@ -126,36 +118,48 @@
                 </thead>
                 <tbody>
                 <?php        
-                $sql = "SELECT employees.fullname, employees.role, reg_manhour.total_worked_hrs, deductions.total_deductions, reg_pay.ot_pay, reg_pay.gross_pay, reg_pay.net_pay, reg_pay.timestamps, reg_pay.visibility
+                $sql = "SELECT  employees.id, employees.fullname, employees.role, employees.emp_type, reg_manhour.total_worked_hrs, deductions.total_deductions,
+                                reg_pay.ot_pay, reg_pay.gross_pay, reg_pay.net_pay, reg_pay.pay_sched, reg_pay.visibility, reg_pay.pay_sched
                         FROM reg_pay
                         INNER JOIN employees ON reg_pay.emp_id = employees.id
                         INNER JOIN reg_manhour ON reg_pay.emp_id = reg_manhour.emp_id
                         INNER JOIN deductions ON reg_pay.emp_id = deductions.emp_id
+                        WHERE reg_pay.visibility = 0
                         GROUP BY employees.id
-                        ORDER BY fullname ASC LIMIT $offset, $no_of_records_per_page ";
+                        ORDER BY $sort ASC LIMIT $offset, $no_of_records_per_page ";
 
                         $result = $db->query($sql);
                         if ($result->num_rows > 0) {
                             // output data of each row
                             while($row = $result->fetch_assoc()) {
+                                if($row['visibility'] == 1){
+                                    $row['visibility'] = "Published";
+                                }
+                            else{
+                                $row['visibility'] = "Hidden";
+                                }
+
+                                 $id = $row['id'];
                                  echo "<tr class='text-center align-middle'>";
-                                 echo "<form action='edit.php' method='post'>";
+                                 echo "<form action='../controllers/updateImport.php' method='POST'>";
                                  echo "<td scope='col'> <input class='ms-3' type='radio'> </td>";
-                                 echo "<td scope='col'> <small> <input style='border: 0;' type='text' size='16' name='id' class='hidden text-start' disabled value=\"" .$row['fullname']. "\" > </small></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='8' name='fullname' class='hidden text-center' disabled value=\"" . $row["role"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' id='order_id' size='14' name='order_id' disabled class='hidden text-center' value=\"" . $row["total_worked_hrs"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='10' name='cx_phone' class='hidden text-center' disabled value=".$row['total_deductions']." > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='5' name='disposition' class='hidden text-center' disabled value=\"" . $row["ot_pay"] . "\" > </td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled  value=\"" .$row['gross_pay']. "\"></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['net_pay']. "\"></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['timestamps']. "\"></td>";
-                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='amount' class='hidden text-center' disabled value=\"" .$row['visibility']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='35' name='fullname' class='hidden text-left'  value=\"" . $row["fullname"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='12' name='role' class='hidden text-center'  value=\"" . $row["role"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='8' name='emp_type' class='hidden text-center'  value=\"" . $row["emp_type"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='number' id='order_id' size='4' name='total_worked_hrs'  class='hidden text-center' value=\"" . $row["total_worked_hrs"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='number' size='6' name='total_deductions' class='hidden text-center'  value=".$row['total_deductions']." > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='number' size='5' name='ot_pay' class='hidden text-center'  value=\"" . $row["ot_pay"] . "\" > </td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='number' size='5' name='gross_pay' class='hidden text-center'   value=\"" .$row['gross_pay']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='number' size='5' name='net_pay' class='hidden text-center'  value=\"" .$row['net_pay']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='8' name='pay_sched' class='hidden text-center'  value=\"" .$row['pay_sched']. "\"></td>";
+                                 echo "<td scope='col'> <input style='border: 0;' type='text' size='3' name='visibility' class='hidden text-center' disabled value=\"" .$row['visibility']. "\"></td>";
+                                 echo "<input type='hidden' name='id' value=\"" .$row['id']. "\">";
                                  echo "<td scope='col'> 
-                                 <button class='pr-1 btn btn-sm btn-primary'><i class='fs bi-pencil-square'></i></button>
-                                 <button class='pr-1 btn btn-sm btn-success'><i class='fs bi-printer'></i></button>
-                                 </td>";
+                                 <button class='pr-1 btn btn-sm btn-primary' data-bs-toggle='tooltip' data-bs-placement='left' title='Click to save changes'><i class='bi bi-save'></i></button>
+                                 </td>";  
                                  echo "</form>";
                                  echo "</tr>";
+                                
                                 }
                           } 
                           else {
@@ -170,8 +174,10 @@
    
         </div>
         <p class="text-center">Page <?php echo"$pageno" ?> of <?php echo"$total_pages" ?></p>
-        <nav class="container position-relative mb-5">
-                <ul class="pagination position-absolute top-50 start-50 translate-middle mt-4">
+        
+        <nav class="container mb-5 d-flex justify-content-center">
+
+                <ul class="pagination  mt-4">
                     <li><a href="?pageno=1" class="btn btn-sm btn-dark ms-3 me-3">First</a></li>
                     <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>" class="btn btn-sm btn-dark ms-3 me-3">
                         <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>" class="btn btn-sm btn-dark ms-3 me-3">Prev</a>
@@ -183,5 +189,89 @@
                 </ul>
         </nav>
 
+                <!-- Modal -->
+        <div class="modal fade" id="importModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Choose Import</h5>
+                    
+                </div>
+                <div class="modal-body">
+                <label>Daily rate Employees</label>
+                <div class="input-group input-group-sm position-relative mt-3 mb-5">
+                    <form action="../controllers/emp_Import.php" method="post" enctype="multipart/form-data">
+                        <div class="form-control" style="border: 0;">
+                            <input class="form-control form-control-sm" id="formFileSm"  type="file" name="file" />
+                            <label>Set Payroll Date: </label>
+                            <input class="date mt-3" type="date" name="reg_sched" id="reg_schedule" required>
+                            <input type="submit" class="btn btn-primary btn-sm position-absolute top-100 end-0 translate-middle-y" name="importSubmit" value="IMPORT">
+                        </div>
+                    </form>
+                </div>
+                <hr>
+                <label>Sales Based Employees</label>
+                <div class="input-group input-group-sm mt-3 mb-3">
+                    <form action="../controllers/comm_Import.php" method="post" enctype="multipart/form-data">
+                        <div class="form-control" style="border: 0;">
+                            <input class="form-control form-control-sm" id="formFileSm"  type="file" name="file" required />
+                            <label>Set Payroll Date: </label>
+                            <input class="date mt-3" type="date" name="sales_sched" id="sales_schedule" required>
+                            <input type="submit" class="btn btn-primary btn-sm position-absolute top-100 end-0 translate-middle-y" name="importSubmit" value="IMPORT">
+                        </div>
+                    </form>
+                </div> 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        
+                <!-- Modal Publish-->
+            <div class="modal fade" id="modalPublish" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Publishing Payslip Records?</h5> 
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                    <p class="text-secondary"><small>Once published. The records will be visible to all employees.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                    <form action="../controllers/publish.php" method="post">
+                        <button class="btn btn-sm btn-success">Publish</button>
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </form>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+                
+                <!-- Modal Edit-->
+                <div class="modal fade" id="modalEdit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">Edit Record</h5> 
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                        <?php echo"<td scope='col'> <small> <input style='border: 0;' type='text' size='35' name='id' class='hidden text-start' disabled value=\"" .$row['fullname']. "\" > </small></td>"?>
+                        </div>
+                        <div class="modal-footer">
+                        <form action="../controllers/publish.php" method="post">
+                            <button class="btn btn-sm btn-success">Save changes</button>
+                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </form>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
 </body>
 </html>

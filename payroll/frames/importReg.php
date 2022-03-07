@@ -80,6 +80,10 @@ if(!empty($_GET['status'])){
             </div>  
         </div>
        </div>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+        Launch static backdrop modal
+        </button>
         <div class="row">
             <table class="table table-responsive table-striped table-light ms-5">
                 <thead class="table-primary">

@@ -19,7 +19,7 @@
   <div class="float-left bg-primary">
     <img class="page-illustration" src="../res/woman-on-a-phone.svg" height="250vw">
     <div class="page-title"> ALTRIA PAYROLL</div>
-    <div class="page-subtitle"> for employees </div>
+    <div class="page-subtitle"> for admin </div>
   </div>
 
   <div class="float-right">
