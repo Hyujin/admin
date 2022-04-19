@@ -2,8 +2,8 @@
 include_once 'db_conn.php';
 
 
-$sqlreg = "UPDATE reg_pay SET visibility= 1 WHERE 1";
-$sqlsales = "UPDATE sales_pay SET visibility= 1 WHERE 1";
+$sqlreg = "UPDATE payroll_batch SET status = 1 WHERE 1";
+$sqlsales = "UPDATE payroll_batch SET status = 1 WHERE 1";
 
 if ($db->query($sqlreg) === TRUE) {
     echo "Record updated successfully";
@@ -17,15 +17,11 @@ if ($db->query($sqlreg) === TRUE) {
     echo "Error updating record: " . $db->error;
   }
 
-
   $db->close();
 
 $qstring = '?status=succ';
 
 // Redirect to the listing page
 header("Location: ../view/dashboard.php.$qstring");
-
-
-
 
 ?>

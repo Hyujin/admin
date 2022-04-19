@@ -26,3 +26,9 @@ margin: 0;
 input[type=number] {
 -moz-appearance: textfield;
 }
+
+.table td.fit, 
+.table th.fit {
+    white-space: nowrap;
+    width: 1%;
+}

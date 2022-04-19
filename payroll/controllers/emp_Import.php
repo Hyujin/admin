@@ -1,9 +1,11 @@
 <?php
+session_start();
 // Load the database configuration file
 include_once 'db_conn.php';
 
 $emp_type = "Regular";
-$pay_sched = $_POST['reg_sched'];
+$start_date = $_POST['start_date'];
+$end_date = $_POST['end_date'];
 
 function cleanString($string) {
     $string = str_replace(' ', '', $string); // Replaces all spaces with hyphens.
@@ -13,23 +15,7 @@ function cleanString($string) {
 
 if(isset($_POST['importSubmit'])){
 
-    //Prepare and bind statements
-    $reg_pay_stmt = $db->prepare("INSERT INTO reg_pay (emp_id, basic_hrs_pay, nds_pay, allow_pay, dispute, spl_hol_pay, reg_hol_pay, prem_hol_pay, ot_pay, net_pay, gross_pay, pay_sched) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ");
-    $reg_pay_stmt->bind_param("idddddddddds", $emp_id, $basic_hrs, $nds_pay, $allow, $dispute, $spl_hol, $reg_hol, $prem_hol, $ot, $net_pay, $gross, $pay_sched);
 
-    $deductions_stmt = $db->prepare("INSERT INTO deductions(emp_id, sss, phic, pagibig, others, ca, total_deductions) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $deductions_stmt->bind_param("idddddd", $emp_id, $sss, $phic, $pagibig, $others, $ca, $total_deductions);
-
-    $reg_rate_stmt = $db->prepare("INSERT INTO reg_rate(emp_id, daily_rate, hrly_rate, allow_hr_rate, nd_rate) VALUES (?, ?, ?, ?, ?)");
-    $reg_rate_stmt->bind_param("idddd", $emp_id, $daily_rate, $hrly_rate, $allow_hrly_rate, $nd_rate);
-
-    $update_reg_rate_stmt = $db->prepare("UPDATE reg_rate SET emp_id = ?, daily_rate = ?, hrly_rate = ?, allow_hr_rate = ?, nd_rate = ? ");
-    $update_reg_rate_stmt->bind_param("idddd", $emp_id, $daily_rate, $hrly_rate, $allow_hrly_rate, $nd_rate);
-    
-    $reg_manhour_stmt = $db->prepare("INSERT INTO reg_manhour(emp_id, total_worked_hrs, total_nd_hrs, reg_hol_hrs, ot_hrs, spl_hol_hrs, prem_hrs, pay_sched) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $reg_manhour_stmt->bind_param("idddddds", $emp_id, $total_worked_hrs, $total_nd_hrs, $reg_hol_hrs, $ot_hrs, $spl_hol_hrs, $prem_hrs, $pay_sched);
-    
-    
     // Allowed mime types
     $csvMimes = array('text/x-comma-separated-values', 'text/comma-separated-values', 'application/octet-stream', 'application/vnd.ms-excel', 'application/x-csv', 'text/x-csv', 'text/csv', 'application/csv', 'application/excel', 'application/vnd.msexcel', 'text/plain');
     
@@ -38,7 +24,45 @@ if(isset($_POST['importSubmit'])){
         
         // If the file is uploaded
         if(is_uploaded_file($_FILES['file']['tmp_name'])){
+
+        //init batch_id
+
+        $pay_sched_stmt = $db->prepare("INSERT INTO payroll_batch (start_date, end_date, type) VALUES (?,?,?)");
+        $pay_sched_stmt->bind_param("sss", $start_date, $end_date, $emp_type);
+        
+        $pay_sched_stmt->execute();
+
+        //set batch id to session
+
+
+        $batch_id_sql = $db->query("SELECT MAX(batch_id) AS currentBatchID FROM payroll_batch");
+        if($batch_id_sql->num_rows > 0){
+            while($row = $batch_id_sql->fetch_assoc()){       
+                $batch_id = $row["currentBatchID"];
+                $_SESSION['batch_id'] = $batch_id;
+        }
+        }
+        else{
+            $batch_id = 1;
+            $_SESSION['batch_id']  = $batch_id;
+        }
             
+        //Prepare and bind statements
+        $reg_pay_stmt = $db->prepare("INSERT INTO reg_pay (emp_id, batch_id, basic_hrs_pay, nds_pay, allow_pay, dispute, spl_hol_pay, reg_hol_pay, prem_hol_pay, ot_pay, net_pay, gross_pay) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ");
+        $reg_pay_stmt->bind_param("isssssssssss", $emp_id, $batch_id, $basic_hrs, $nds_pay, $allow, $dispute, $spl_hol, $reg_hol, $prem_hol, $ot, $net_pay, $gross);
+
+        $deductions_stmt = $db->prepare("INSERT INTO deductions(emp_id, batch_id, sss, phic, pagibig, others, ca, total_deductions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $deductions_stmt->bind_param("isssssss", $emp_id, $batch_id, $sss, $phic, $pagibig, $others, $ca, $total_deductions);
+
+        $reg_rate_stmt = $db->prepare("INSERT INTO reg_rate(emp_id, batch_id, daily_rate, hrly_rate, allow_hr_rate, nd_rate) VALUES (?, ?, ?, ?, ?, ?)");
+        $reg_rate_stmt->bind_param("isssss", $emp_id, $batch_id, $daily_rate, $hrly_rate, $allow_hrly_rate, $nd_rate);
+
+       # $update_reg_rate_stmt = $db->prepare("UPDATE reg_rate SET emp_id = ?, daily_rate = ?, hrly_rate = ?, allow_hr_rate = ?, nd_rate = ? WHERE emp_id = ?");
+        #$update_reg_rate_stmt->bind_param("issss", $emp_id, $daily_rate, $hrly_rate, $allow_hrly_rate, $nd_rate);
+        
+        $reg_manhour_stmt = $db->prepare("INSERT INTO reg_manhour(emp_id, batch_id, total_worked_hrs, total_nd_hrs, reg_hol_hrs, ot_hrs, spl_hol_hrs, prem_hrs) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $reg_manhour_stmt->bind_param("isssssss", $emp_id, $batch_id, $total_worked_hrs, $total_nd_hrs, $reg_hol_hrs, $ot_hrs, $spl_hol_hrs, $prem_hrs);
+        
             // Open uploaded CSV file with read-only mode
             $csvFile = fopen($_FILES['file']['tmp_name'], 'r');
             
@@ -91,13 +115,14 @@ if(isset($_POST['importSubmit'])){
                        
                         $reg_pay_stmt->execute();
                         $deductions_stmt->execute();
-                        $update_reg_rate_stmt->execute();
+                        $reg_rate_stmt->execute(); //previously update rate stmt
                         $reg_manhour_stmt->execute();
                     }
                        else {
                         $insertNewNameQuery = "INSERT INTO employees (fullname, role, emp_type) VALUES ('$fullname', '$role', '$emp_type') ";
                         if (mysqli_query($db, $insertNewNameQuery)) {
                             echo "New name inserted successfully";
+
                             $querySelectName = $db->query("SELECT id FROM employees WHERE fullname = '$fullname' ");
                             if ($querySelectName->num_rows > 0) {
                                 // output data of each row
@@ -112,7 +137,18 @@ if(isset($_POST['importSubmit'])){
                                     $reg_manhour_stmt->execute();
                                 }
                               }
-                        } else {
+
+                              //insert users for account log ins after inserting new name records in db
+                              $dotName = str_replace(' ', '.', $fullname); 
+                              $usernameUpper = str_replace(',', '', $dotName);
+                              $username = strtolower($usernameUpper);
+                              $inseryUser = "INSERT INTO users (username, emp_id, init_pass) VALUES ('$username', $emp_id, '@ltriapay') ";
+                              if (mysqli_query($db, $inseryUser)) {
+                                  echo $username;
+                              }
+                              header("Location: ../view/import/regular.php");
+                        
+                            } else {
                             echo "Error: " . $sql . "<br>" . $conn->error;
                           }     
                     }     
@@ -130,6 +166,6 @@ if(isset($_POST['importSubmit'])){
         $qstring = '?status=invalid_file';
     }
     // Redirect to the listing page
-    header("Location: ../view/import.php.$qstring");
+    header("Location: ../view/import/regular.php.$qstring");
 }
 
