@@ -1,5 +1,8 @@
 <?php
 session_start();
+if(!isset($_SESSION['admin'])){
+    header("Location: ../auth/login.php");
+}
     include("../controllers/db_conn.php");
 ?>
 <!DOCTYPE html>
@@ -45,9 +48,9 @@ session_start();
                     <span class="d-none d-sm-inline mx-1">Rochelle</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-light text-small shadow">
-                    <li><a class="dropdown-item" href="#">Update Username</a></li>
-                    <li><a class="dropdown-item" href="#">Change Password</a></li>
-                    <li><a class="dropdown-item" href="#">Sign out</a></li>
+                    <!-- <li><a class="dropdown-item" href="#">Update Username</a></li>
+                    <li><a class="dropdown-item" href="#">Change Password</a></li> -->
+                    <li><a class="dropdown-item" href="../controllers/logout.php">Sign out</a></li>
                 </ul>
             </div>
         </div>

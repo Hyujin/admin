@@ -1,5 +1,8 @@
 <?php
 session_start();
+if(!isset($_SESSION['admin'])){
+    header("Location: ../auth/login.php");
+}
     include("../controllers/db_conn.php");
 ?>
 <!DOCTYPE html>
@@ -45,9 +48,7 @@ session_start();
                     <span class="d-none d-sm-inline mx-1">Rochelle</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-light text-small shadow">
-                    <li><a class="dropdown-item" href="#">Update Username</a></li>
-                    <li><a class="dropdown-item" href="#">Change Password</a></li>
-                    <li><a class="dropdown-item" href="#">Sign out</a></li>
+                    <li><a class="dropdown-item" href="../controllers/logout.php">Sign out</a></li>
                 </ul>
             </div>
         </div>
@@ -106,6 +107,7 @@ session_start();
          <form method='POST' action='edit.php'>
             <table class="table table-sm table-responsive table-light">
                 <thead class="table-primary">
+                    <th class="col">ID</th>
                     <th class="col">Employee Name</th>
                     <th class="col">Status</th>
                     <th class="col">Tools</th>
@@ -125,6 +127,7 @@ session_start();
                                     $status = "Private";     
                                     }
                                     echo "<tr>";
+                                    echo "<td scope='col'> <input style='border: 0;' type='text' name='id'  disabled value=\"" .$row['id']. "\"></td>";
                                     echo "<td scope='col'> <input style='border: 0;' type='text' name='start_date'  disabled value=\"" .$row['fullname']. "\"></td>";
                                     echo "<td scope='col'> <input style='border: 0;' type='text' name='status'  disabled value=\"" .$row['status']. "\"></td>";
                                     echo "<td scope='col'> ";

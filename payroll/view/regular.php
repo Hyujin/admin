@@ -1,5 +1,8 @@
 <?php
 session_start();
+if(!isset($_SESSION['admin'])){
+    header("Location: ../auth/login.php");
+}
 $batch_id = $_SESSION['bid'];
 ?>
 <!DOCTYPE html>
@@ -41,9 +44,7 @@ $batch_id = $_SESSION['bid'];
                     <span class="d-none d-sm-inline mx-1">Rochelle</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-light text-small shadow">
-                    <li><a class="dropdown-item" href="#">Update Username</a></li>
-                    <li><a class="dropdown-item" href="#">Change Password</a></li>
-                    <li><a class="dropdown-item" href="#">Sign out</a></li>
+                    <li><a class="dropdown-item" href="../controllers/logout.php">Sign out</a></li>
                 </ul>
             </div>
             </div>
@@ -139,7 +140,6 @@ $batch_id = $_SESSION['bid'];
                         <th class="col  text-center"><small>Total Deductions</small></th> 
 
                         <th class="col  text-center"><small>Net Pay</small></th> 
-                        <th class="col text-center"><small>Tools</small></th>
                     </thead>
                     <tbody>
                     <?php        
@@ -204,10 +204,6 @@ $batch_id = $_SESSION['bid'];
                                     echo "<td scope='col'> <input style='border: 0;' type='text' name='total_deductions' class='hidden text-center' disabled value=\"" .$row['total_deductions']. "\"></td>";
                                     echo "<td scope='col'> <input style='border: 0;' type='text' name='net_pay' class='hidden text-center' disabled value=\"" .$row['net_pay']. "\"></td>";
                                     $_SESSION['batch_id'] = $row['batch_id'];
-                                    
-                                    echo "<td scope='col'> 
-                                    <button class='pr-1 btn btn-sm btn-primary' data-bs-toggle='tooltip' data-bs-placement='left' title='Click to save changes'><i class='bi bi-save'></i></button>
-                                    </td>";  
                                     echo "</form>";
                                     echo "</tr>";
                                     

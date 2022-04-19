@@ -14,7 +14,7 @@ if ( !isset($_POST['username'], $_POST['password']) ) {
   }
 
 
-if ($stmt = $db->prepare('SELECT username, password FROM users WHERE username = ?')) {
+if ($stmt = $db->prepare('SELECT username, password FROM admin WHERE username = ?')) {
 
     // Bind parameters (s = string, i = int, b = blob, etc), in our case the username is a string so we use "s"
     $stmt->bind_param('s', $_POST['username']);
@@ -43,21 +43,9 @@ if ($stmt = $db->prepare('SELECT username, password FROM users WHERE username = 
             $_SESSION['name'] = $_POST['username'];
             $_SESSION['username'] = $username;
             echo $username;
-           header('Location: ../index.php');
+           header('Location: ../view/dashboard.php');
             $stmt->close();
             }
-            elseif($username == 'user'){
-            // Create sessions, so we know the user is logged in, they basically act like cookies but remember the data on the server.
-            session_regenerate_id();
-            $_SESSION['loggedin'] = TRUE;
-            $_SESSION['admin'] = "false";
-            $_SESSION['name'] = $_POST['username'];
-            $_SESSION['username'] = $username;
-           header('Location: ../logs.php');
-            $stmt->close();
-            }
-
-            
         } else {
             // Incorrect password
             echo 'Incorrect admin username and/or password!';

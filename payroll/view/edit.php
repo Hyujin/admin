@@ -1,6 +1,14 @@
 <?php
 session_start();
+    if(!isset($_SESSION['admin'])){
+        header("Location: ../auth/login.php");
+    }
     include("../controllers/db_conn.php");
+    if(isset($_POST['id'])){
+        $emp_id = $_POST['id'];
+    }
+
+    
     if(isset($_POST['emp_id-btn'])){
         $emp_id = $_POST['emp_id-btn'];
         $getUser = $db->query("SELECT employees.fullname, employees.role, employees.emp_type, employees.status, users.username, users.password
@@ -56,9 +64,7 @@ session_start();
                     <span class="d-none d-sm-inline mx-1">Rochelle</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-light text-small shadow">
-                    <li><a class="dropdown-item" href="#">Update Username</a></li>
-                    <li><a class="dropdown-item" href="#">Change Password</a></li>
-                    <li><a class="dropdown-item" href="#">Sign out</a></li>
+                    <li><a class="dropdown-item" href="../controllers/logout.php">Sign out</a></li>
                 </ul>
             </div>
         </div>
@@ -90,6 +96,15 @@ session_start();
         
            </div> -->
        </div>
+       <form action="../controllers/updateEmp.php" method="POST">
+        <div class="row">
+            <div class="col-2">
+                <input type="hidden" name="emp_id" value=<?php echo "'$emp_id'" ?>>
+            </div>
+            <div class="col-10">
+
+            </div>
+        </div>
         <div class="row">
             <div class="col-4 mb-3">
                 <h4>Update Employee Details</h4>
@@ -98,7 +113,7 @@ session_start();
         </div>
        <div class="row mb-2">
             <div class="col-1">
-                <label for="fullname">
+                <label for="fullna0me">
                     Fullname: 
                 </label>
             </div>
@@ -111,7 +126,7 @@ session_start();
                 </label>
             </div>
             <div class="col-3">
-            <input type="text" name="fullname" id="fullname" <?php echo "value=\"" .$role. "\" "?>>
+            <input type="text" name="role" id="fullname" <?php echo "value=\"" .$role. "\" "?>>
             </div>
             <div class="col-4"></div>
        </div>
@@ -123,7 +138,7 @@ session_start();
                 </label>
             </div>
             <div class="col-3">
-                <input type="text" name="fullname" id="fullname" <?php echo "value=\"" .$emp_type. "\" "?>>
+                <input type="text" name="emp_type" id="fullname" <?php echo "value=\"" .$emp_type. "\" "?>>
             </div>
             <div class="col-1">
             <label for="role">
@@ -131,11 +146,11 @@ session_start();
                 </label>
             </div>
             <div class="col-3">
-            <select >
-                <option value="1" <?php echo ($Defaultselection == 1)?"selected":""; ?>>A</option>
-                <option value="2" <?php echo ($Defaultselection == 2)?"selected":""; ?>>B</option>
-                <option value="3" <?php echo ($Defaultselection == 3)?"selected":""; ?>>C</option>
-                <option value="4" <?php echo ($Defaultselection == 4)?"selected":""; ?>>D</option>
+            <select name="status">
+                <option value="Active" <?php echo ($status == "Active")?"selected":""; ?>>Active</option>
+                <option value="On Leave" <?php echo ($status == "On Leave")?"selected":""; ?>>On Leave</option>
+                <option value="AWOL" <?php echo ($status == "AWOL")?"selected":""; ?>>AWOL</option>
+                <option value="Resigned" <?php echo ($status == "Resigned")?"selected":""; ?>>Resigned</option>
             </select> 
             <!-- <input type="text" name="fullname" id="fullname" <?php echo "value=\"" .$status. "\" "?>> -->
             </div>
@@ -149,7 +164,7 @@ session_start();
                 </label>
             </div>
             <div class="col-3">
-                <input type="text" name="fullname" id="fullname" <?php echo "value=\"" .$username. "\" "?>>
+                <input type="text" name="username" id="fullname" <?php echo "value=\"" .$username. "\" "?>>
             </div>
             <div class="col-1">
             <label for="role">
@@ -157,11 +172,18 @@ session_start();
                 </label>
             </div>
             <div class="col-3">
-            <input type="text" name="fullname" id="fullname" <?php echo "value=\"" .$password. "\" "?>>
+            <input type="text" name="password" id="fullname" <?php echo "value=\"" .$password. "\" "?>>
             </div>
             <div class="col-4"></div>
        </div>
-
+       <div class="row mt-3">
+           <div class="col-6"></div>
+           <div class="col-2">
+               <input class="btn btn-sm btn-primary" value="Update" type="submit" name="updateBTN" id="updateBTN">
+           </div>
+           <div class="col-4"></div>
+       </div>
+       </form>
     <!--
        <div class="row ">
             <div class="ms-5 mb-5 mt-5">
